@@ -1,0 +1,535 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@400;500&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+--bg:#0a0a0b;
+--bg2:#111114;
+--bg3:#18181c;
+--surface:#1e1e24;
+--surface2:#252530;
+--border:#2e2e3a;
+--border2:#3a3a4a;
+--accent:#c8a96e;
+--accent2:#e8c98e;
+--text:#e8e6df;
+--muted:#888;
+--muted2:#666;
+--red:#c25050;
+--green:#4a9a6a;
+--blue:#5080c2;
+--teal:#3a8a8a;
+--heading:'Playfair Display',serif;
+--mono:'DM Mono',monospace;
+}
+
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.4;}
+
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh;gap:0;}
+
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:0;}
+
+.sidebar-header{padding:18px 16px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg2);z-index:10;}
+
+.sidebar-header h1{font-family:var(--heading);font-size:16px;font-weight:400;color:var(--accent);letter-spacing:0.02em;}
+.sidebar-header p{color:var(--muted);font-size:10px;margin-top:2px;letter-spacing:0.08em;text-transform:uppercase;}
+
+.preset-search{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;font-family:var(--mono);font-size:11px;border-radius:3px;outline:none;margin-top:10px;}
+.preset-search:focus{border-color:var(--accent);}
+.preset-search::placeholder{color:var(--muted2);}
+
+.category-label{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted2);padding:10px 16px 4px;border-top:1px solid var(--border);}
+
+.preset-item{padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.1s;}
+.preset-item:hover{background:var(--surface);}
+.preset-item.active{background:var(--surface2);color:var(--accent);}
+.preset-item.active::before{content:'';width:2px;height:100%;background:var(--accent);position:absolute;left:0;}
+.preset-item{position:relative;}
+
+.preset-name{font-size:11px;flex:1;}
+.preset-badge{font-size:9px;padding:1px 5px;border-radius:2px;letter-spacing:0.06em;text-transform:uppercase;}
+.badge-v{background:#1a2a1a;color:var(--green);}
+.badge-u{background:#2a1a1a;color:var(--red);}
+.badge-m{background:#1a1a2a;color:var(--blue);}
+
+.main{display:flex;flex-direction:column;overflow:hidden;}
+
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+
+.preset-info{flex:1;}
+.preset-title{font-family:var(--heading);font-size:20px;font-weight:400;color:var(--accent2);letter-spacing:0.01em;}
+.preset-desc{color:var(--muted);font-size:10px;margin-top:2px;}
+
+.tag{font-size:9px;padding:2px 8px;border-radius:2px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid;}
+
+.controls-grid{flex:1;overflow-y:auto;padding:20px 24px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-content:start;}
+
+.section{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px;}
+.section-title{font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted2);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.section-title::before{content:'';display:inline-block;width:2px;height:10px;background:var(--accent);border-radius:1px;}
+
+.ctrl-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.ctrl-row:last-child{margin-bottom:0;}
+.ctrl-label{font-size:10px;color:var(--muted);min-width:80px;letter-spacing:0.04em;}
+.ctrl-val{font-size:11px;color:var(--accent);min-width:38px;text-align:right;font-variant-numeric:tabular-nums;}
+
+input[type=range]{flex:1;height:3px;appearance:none;background:var(--border2);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);cursor:pointer;transition:transform 0.1s;}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.2);}
+input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(to right,var(--accent) var(--pct,0%),var(--border2) var(--pct,0%));border-radius:2px;}
+
+.toggle-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.toggle-label{font-size:10px;color:var(--muted);flex:1;}
+.toggle{display:flex;gap:4px;}
+.toggle-btn{padding:4px 10px;font-family:var(--mono);font-size:10px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;border-radius:2px;transition:all 0.1s;letter-spacing:0.04em;}
+.toggle-btn.on{background:var(--surface2);color:var(--accent);border-color:var(--accent);}
+
+.viz-section{background:var(--bg2);border-top:1px solid var(--border);padding:12px 24px;display:flex;gap:16px;align-items:stretch;}
+
+.tract-viz{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 12px;}
+.tract-title{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted2);margin-bottom:8px;}
+.tract-canvas{height:54px;display:flex;align-items:flex-end;gap:2px;}
+.tract-seg{border-radius:2px 2px 0 0;transition:height 0.3s ease,background 0.3s ease;min-width:0;flex:1;}
+.tract-labels{display:flex;justify-content:space-between;margin-top:4px;}
+.tract-label{font-size:8px;color:var(--muted2);}
+
+.waveform-viz{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 12px;}
+.wave-svg{width:100%;height:54px;}
+
+.formants-viz{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 12px;min-width:120px;}
+.formant-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.formant-key{font-size:9px;color:var(--muted2);min-width:18px;}
+.formant-bar{height:6px;border-radius:1px;transition:width 0.3s;}
+.formant-hz{font-size:9px;color:var(--accent);min-width:40px;}
+
+</style>
+
+<h2 class="sr-only" style="position:absolute;left:-9999px;">MouthModel v1.0 — Kelly-Lochbaum Vocal Tract Synthesizer UI with 50 presets</h2>
+
+<div class="app">
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>MouthModel</h1>
+    <p>v1.0 · Kelly-Lochbaum</p>
+    <input class="preset-search" type="text" placeholder="search presets..." id="search" />
+  </div>
+  <div id="preset-list"></div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="preset-info">
+      <div class="preset-title" id="pt">Neutral Voice</div>
+      <div class="preset-desc" id="pd">Natural neutral speaking voice · modal phonation</div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;" id="tags-row"></div>
+  </div>
+
+  <div class="controls-grid">
+
+    <div class="section">
+      <div class="section-title">Source</div>
+      <div class="toggle-row">
+        <span class="toggle-label">phonation</span>
+        <div class="toggle">
+          <button class="toggle-btn" id="btn-voiced" onclick="setVoiced(1)">voiced</button>
+          <button class="toggle-btn" id="btn-unvoiced" onclick="setVoiced(0)">noise</button>
+        </div>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">pitch</span>
+        <input type="range" min="50" max="600" step="1" id="r-pitch" oninput="updateSlider('pitch',this)">
+        <span class="ctrl-val" id="v-pitch">120 Hz</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">glottal drive</span>
+        <input type="range" min="0.5" max="3" step="0.05" id="r-drive" oninput="updateSlider('drive',this)">
+        <span class="ctrl-val" id="v-drive">1.00</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">breathiness</span>
+        <input type="range" min="0" max="1" step="0.01" id="r-breathiness" oninput="updateSlider('breathiness',this)">
+        <span class="ctrl-val" id="v-breathiness">0.10</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">fricative lvl</span>
+        <input type="range" min="0" max="1" step="0.01" id="r-fricative" oninput="updateSlider('fricative',this)">
+        <span class="ctrl-val" id="v-fricative">0.00</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Articulation</div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">vowel</span>
+        <input type="range" min="0" max="1" step="0.01" id="r-vowel" oninput="updateSlider('vowel',this)">
+        <span class="ctrl-val" id="v-vowel">ah</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">jaw open</span>
+        <input type="range" min="0.1" max="2" step="0.01" id="r-jaw" oninput="updateSlider('jaw',this)">
+        <span class="ctrl-val" id="v-jaw">1.00</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">tongue ht</span>
+        <input type="range" min="0.1" max="2" step="0.01" id="r-tongue" oninput="updateSlider('tongue',this)">
+        <span class="ctrl-val" id="v-tongue">1.00</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">lip aperture</span>
+        <input type="range" min="0.05" max="2" step="0.01" id="r-lips" oninput="updateSlider('lips',this)">
+        <span class="ctrl-val" id="v-lips">1.00</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">nasality</span>
+        <input type="range" min="0" max="1" step="0.01" id="r-nasality" oninput="updateSlider('nasality',this)">
+        <span class="ctrl-val" id="v-nasality">0.00</span>
+      </div>
+    </div>
+
+    <div class="section" style="grid-column:1/-1;">
+      <div class="section-title">Vowel Space</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+        <div id="vowel-btn-0" onclick="setVowelQuick(0)" style="text-align:center;padding:10px 4px;border:1px solid var(--border2);border-radius:3px;cursor:pointer;transition:all 0.15s;">
+          <div style="font-family:var(--heading);font-size:20px;color:var(--accent);">a</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">ah · open</div>
+        </div>
+        <div id="vowel-btn-1" onclick="setVowelQuick(0.25)" style="text-align:center;padding:10px 4px;border:1px solid var(--border2);border-radius:3px;cursor:pointer;transition:all 0.15s;">
+          <div style="font-family:var(--heading);font-size:20px;color:var(--accent);">e</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">eh · mid-front</div>
+        </div>
+        <div id="vowel-btn-2" onclick="setVowelQuick(0.5)" style="text-align:center;padding:10px 4px;border:1px solid var(--border2);border-radius:3px;cursor:pointer;transition:all 0.15s;">
+          <div style="font-family:var(--heading);font-size:20px;color:var(--accent);">i</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">ee · high-front</div>
+        </div>
+        <div id="vowel-btn-3" onclick="setVowelQuick(0.75)" style="text-align:center;padding:10px 4px;border:1px solid var(--border2);border-radius:3px;cursor:pointer;transition:all 0.15s;">
+          <div style="font-family:var(--heading);font-size:20px;color:var(--accent);">o</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">oh · back-round</div>
+        </div>
+        <div id="vowel-btn-4" onclick="setVowelQuick(1.0)" style="text-align:center;padding:10px 4px;border:1px solid var(--border2);border-radius:3px;cursor:pointer;transition:all 0.15s;">
+          <div style="font-family:var(--heading);font-size:20px;color:var(--accent);">u</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">oo · high-back</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="viz-section">
+    <div class="tract-viz">
+      <div class="tract-title">tract geometry — 8 segments</div>
+      <div class="tract-canvas" id="tract-canvas"></div>
+      <div class="tract-labels">
+        <span class="tract-label">glottis</span>
+        <span class="tract-label">pharynx</span>
+        <span class="tract-label">velum</span>
+        <span class="tract-label">tongue</span>
+        <span class="tract-label">alveolar</span>
+        <span class="tract-label">teeth</span>
+        <span class="tract-label" style="text-align:right">lips</span>
+      </div>
+    </div>
+    <div class="waveform-viz">
+      <div class="tract-title">glottal waveform (LF model)</div>
+      <svg class="wave-svg" id="wave-svg" viewBox="0 0 300 54"></svg>
+    </div>
+    <div class="formants-viz">
+      <div class="tract-title">formant estimate</div>
+      <div id="formants-display"></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const PRESETS = [
+  {cat:"Voiced Vowels",name:"Neutral Voice",desc:"Natural neutral speaking voice · modal phonation",tags:["voiced","modal"],voiced:1,pitch:120,vowel:0.0,jaw:1.0,tongue:1.0,lips:1.0,breathiness:0.1,nasality:0.0,fricative:0.0,drive:1.0},
+  {cat:"Voiced Vowels",name:"Open Ah",desc:"Wide-open jaw vowel /a/ · operatic resonance",tags:["voiced","vowel"],voiced:1,pitch:130,vowel:0.0,jaw:1.8,tongue:0.8,lips:1.2,breathiness:0.05,nasality:0.0,fricative:0.0,drive:1.0},
+  {cat:"Voiced Vowels",name:"Bright Eh",desc:"Mid-front /e/ · clear formant structure",tags:["voiced","vowel"],voiced:1,pitch:140,vowel:0.25,jaw:1.1,tongue:1.1,lips:1.1,breathiness:0.08,nasality:0.0,fricative:0.0,drive:1.0},
+  {cat:"Voiced Vowels",name:"High Ee",desc:"Tongue-high front /i/ · sharp, forward timbre",tags:["voiced","vowel"],voiced:1,pitch:150,vowel:0.5,jaw:0.8,tongue:1.6,lips:1.3,breathiness:0.05,nasality:0.0,fricative:0.0,drive:0.9},
+  {cat:"Voiced Vowels",name:"Round Oh",desc:"Back rounded /o/ · warm and dark",tags:["voiced","vowel"],voiced:1,pitch:110,vowel:0.75,jaw:1.2,tongue:0.9,lips:0.5,breathiness:0.08,nasality:0.0,fricative:0.0,drive:1.0},
+  {cat:"Voiced Vowels",name:"Deep Oo",desc:"High-back rounded /u/ · muffled and dark",tags:["voiced","vowel"],voiced:1,pitch:100,vowel:1.0,jaw:0.9,tongue:0.4,lips:0.3,breathiness:0.06,nasality:0.0,fricative:0.0,drive:1.0},
+  {cat:"Voiced Vowels",name:"Soprano A4",desc:"High soprano A · lyric formant reinforcement",tags:["voiced","soprano"],voiced:1,pitch:440,vowel:0.0,jaw:1.9,tongue:0.7,lips:1.4,breathiness:0.03,nasality:0.0,fricative:0.0,drive:1.1},
+  {cat:"Voiced Vowels",name:"Tenor C4",desc:"Mid tenor middle C with open pharynx",tags:["voiced","tenor"],voiced:1,pitch:262,vowel:0.15,jaw:1.4,tongue:1.0,lips:1.0,breathiness:0.05,nasality:0.0,fricative:0.0,drive:1.2},
+  {cat:"Voiced Vowels",name:"Bass Voice",desc:"Deep bass register · low F0 with throat weight",tags:["voiced","bass"],voiced:1,pitch:65,vowel:0.05,jaw:1.6,tongue:0.8,lips:1.1,breathiness:0.07,nasality:0.0,fricative:0.0,drive:1.3},
+  {cat:"Voiced Vowels",name:"Child Voice",desc:"Elevated pitch and open jaw · child-like timbre",tags:["voiced","child"],voiced:1,pitch:280,vowel:0.1,jaw:1.5,tongue:1.2,lips:1.3,breathiness:0.15,nasality:0.1,fricative:0.0,drive:0.8},
+  {cat:"Breathy & Airy",name:"Breathy Whisper",desc:"High breathiness · whispered phonation quality",tags:["voiced","breathy"],voiced:1,pitch:140,vowel:0.2,jaw:1.2,tongue:1.0,lips:1.1,breathiness:0.8,nasality:0.0,fricative:0.1,drive:0.7},
+  {cat:"Breathy & Airy",name:"Aspiration",desc:"Maximally breathy · near-whisper aspiration",tags:["voiced","airy"],voiced:1,pitch:120,vowel:0.0,jaw:1.0,tongue:1.0,lips:1.0,breathiness:0.95,nasality:0.0,fricative:0.2,drive:0.6},
+  {cat:"Breathy & Airy",name:"Soft Falsetto",desc:"Breathy falsetto range · elevated pitch",tags:["voiced","falsetto"],voiced:1,pitch:320,vowel:0.4,jaw:0.9,tongue:1.3,lips:1.2,breathiness:0.6,nasality:0.0,fricative:0.0,drive:0.6},
+  {cat:"Breathy & Airy",name:"Loft Register",desc:"Airy upper voice · minimal subglottal pressure",tags:["voiced","airy"],voiced:1,pitch:380,vowel:0.5,jaw:0.8,tongue:1.4,lips:1.1,breathiness:0.5,nasality:0.0,fricative:0.0,drive:0.55},
+  {cat:"Breathy & Airy",name:"Cotton Mouth",desc:"Dry, over-aspirated speech · dehydrated quality",tags:["voiced","breathy"],voiced:1,pitch:100,vowel:0.3,jaw:0.8,tongue:0.9,lips:0.9,breathiness:0.7,nasality:0.0,fricative:0.15,drive:0.8},
+  {cat:"Pressed & Creaky",name:"Vocal Fry",desc:"Maximal drive · subglottal creak and fry",tags:["voiced","creak"],voiced:1,pitch:70,vowel:0.0,jaw:1.0,tongue:1.0,lips:1.0,breathiness:0.05,nasality:0.0,fricative:0.0,drive:2.8},
+  {cat:"Pressed & Creaky",name:"Glottal Pulse",desc:"Tense pressed phonation · stiff folds",tags:["voiced","pressed"],voiced:1,pitch:110,vowel:0.1,jaw:1.1,tongue:1.0,lips:1.0,breathiness:0.0,nasality:0.0,fricative:0.0,drive:2.2},
+  {cat:"Pressed & Creaky",name:"Strident Edge",desc:"Harsh, metallic pressed quality",tags:["voiced","harsh"],voiced:1,pitch:155,vowel:0.25,jaw:1.0,tongue:1.1,lips:1.0,breathiness:0.0,nasality:0.0,fricative:0.05,drive:2.0},
+  {cat:"Pressed & Creaky",name:"Death Rattle",desc:"Extreme fry + creak · dramatic tension",tags:["voiced","creak"],voiced:1,pitch:55,vowel:0.0,jaw:0.7,tongue:0.8,lips:0.8,breathiness:0.1,nasality:0.0,fricative:0.0,drive:3.0},
+  {cat:"Pressed & Creaky",name:"Diplophonia",desc:"Double-periodicity illusion at high drive",tags:["voiced","creak"],voiced:1,pitch:85,vowel:0.05,jaw:0.9,tongue:0.9,lips:0.9,breathiness:0.05,nasality:0.0,fricative:0.0,drive:2.5},
+  {cat:"Nasal",name:"Nasal Murmur",desc:"Strong nasality · velopharyngeal opening",tags:["voiced","nasal"],voiced:1,pitch:120,vowel:0.0,jaw:0.9,tongue:1.0,lips:1.0,breathiness:0.1,nasality:0.9,fricative:0.0,drive:1.0},
+  {cat:"Nasal",name:"Nasal Vowel",desc:"Nasalised /ã/ · French nasal formant",tags:["voiced","nasal"],voiced:1,pitch:135,vowel:0.05,jaw:1.3,tongue:0.8,lips:1.1,breathiness:0.1,nasality:0.8,fricative:0.0,drive:1.0},
+  {cat:"Nasal",name:"Nasal Ee",desc:"High nasal /ĩ/ · piercing quality",tags:["voiced","nasal"],voiced:1,pitch:150,vowel:0.5,jaw:0.7,tongue:1.5,lips:1.2,breathiness:0.08,nasality:0.75,fricative:0.0,drive:0.9},
+  {cat:"Nasal",name:"Nasal Oo",desc:"Dark nasal /ũ/ · muffled resonance",tags:["voiced","nasal"],voiced:1,pitch:105,vowel:1.0,jaw:0.8,tongue:0.4,lips:0.3,breathiness:0.06,nasality:0.7,fricative:0.0,drive:1.0},
+  {cat:"Nasal",name:"Congested",desc:"Heavy nasality + reduced jaw · stuffy nose",tags:["voiced","nasal"],voiced:1,pitch:115,vowel:0.1,jaw:0.6,tongue:0.9,lips:0.9,breathiness:0.12,nasality:1.0,fricative:0.0,drive:1.1},
+  {cat:"Fricatives",name:"Sibilant S",desc:"/s/ — alveolar fricative · high-frequency noise",tags:["unvoiced","fricative"],voiced:0,pitch:200,vowel:0.5,jaw:0.7,tongue:1.6,lips:0.9,breathiness:0.3,nasality:0.0,fricative:0.9,drive:1.0},
+  {cat:"Fricatives",name:"Labiodental F",desc:"/f/ — labiodental friction · lip-teeth constriction",tags:["unvoiced","fricative"],voiced:0,pitch:150,vowel:0.3,jaw:0.6,tongue:0.9,lips:0.2,breathiness:0.2,nasality:0.0,fricative:0.85,drive:1.0},
+  {cat:"Fricatives",name:"Voiced Z",desc:"/z/ — voiced alveolar fricative",tags:["mixed","fricative"],voiced:0.6,pitch:130,vowel:0.5,jaw:0.7,tongue:1.5,lips:0.9,breathiness:0.2,nasality:0.0,fricative:0.7,drive:1.0},
+  {cat:"Fricatives",name:"Sh Sound",desc:"/ʃ/ — post-alveolar · hushing quality",tags:["unvoiced","fricative"],voiced:0,pitch:160,vowel:0.6,jaw:0.8,tongue:1.3,lips:0.6,breathiness:0.25,nasality:0.0,fricative:0.8,drive:1.0},
+  {cat:"Fricatives",name:"Voiced V",desc:"/v/ — voiced labiodental",tags:["mixed","fricative"],voiced:0.5,pitch:120,vowel:0.3,jaw:0.7,tongue:0.9,lips:0.2,breathiness:0.15,nasality:0.0,fricative:0.65,drive:1.0},
+  {cat:"Mixed & Transitions",name:"Ah to Ee Morph",desc:"Vowel space mid-point between /a/ and /i/",tags:["voiced","morph"],voiced:1,pitch:130,vowel:0.37,jaw:1.2,tongue:1.2,lips:1.1,breathiness:0.08,nasality:0.0,fricative:0.0,drive:1.0},
+  {cat:"Mixed & Transitions",name:"Ee to Oo Glide",desc:"Rounded glide /iw/ transition",tags:["voiced","morph"],voiced:1,pitch:125,vowel:0.73,jaw:0.9,tongue:0.9,lips:0.6,breathiness:0.1,nasality:0.0,fricative:0.0,drive:1.0},
+  {cat:"Mixed & Transitions",name:"Nasal Onset",desc:"Voiced onset with nasal murmur bleed",tags:["voiced","nasal"],voiced:1,pitch:118,vowel:0.1,jaw:0.8,tongue:1.0,lips:1.0,breathiness:0.1,nasality:0.55,fricative:0.0,drive:1.0},
+  {cat:"Mixed & Transitions",name:"Fricated Vowel",desc:"Ah vowel with alveolar turbulence injection",tags:["mixed","fricative"],voiced:0.7,pitch:130,vowel:0.0,jaw:1.3,tongue:1.0,lips:1.0,breathiness:0.1,nasality:0.0,fricative:0.5,drive:1.0},
+  {cat:"Mixed & Transitions",name:"Breathy Ah",desc:"Open vowel with moderate aspiration noise",tags:["voiced","breathy"],voiced:1,pitch:115,vowel:0.0,jaw:1.6,tongue:0.8,lips:1.2,breathiness:0.55,nasality:0.0,fricative:0.0,drive:0.75},
+  {cat:"Extreme",name:"Megaphone",desc:"Tight lips, high pitch, metallic formants",tags:["voiced","extreme"],voiced:1,pitch:250,vowel:0.4,jaw:0.6,tongue:1.3,lips:0.1,breathiness:0.0,nasality:0.0,fricative:0.2,drive:1.8},
+  {cat:"Extreme",name:"Cave Resonance",desc:"Maximum jaw + open throat · cavernous",tags:["voiced","extreme"],voiced:1,pitch:75,vowel:0.0,jaw:2.0,tongue:0.2,lips:2.0,breathiness:0.05,nasality:0.2,fricative:0.0,drive:1.0},
+  {cat:"Extreme",name:"Kazoo",desc:"Nasal + fricative combo · buzzy membrane",tags:["mixed","extreme"],voiced:1,pitch:200,vowel:0.3,jaw:0.5,tongue:1.0,lips:0.3,breathiness:0.3,nasality:0.8,fricative:0.5,drive:2.0},
+  {cat:"Extreme",name:"Zombie Groan",desc:"Subharmonic creak with nasal colouration",tags:["voiced","extreme"],voiced:1,pitch:58,vowel:0.05,jaw:1.1,tongue:0.8,lips:0.9,breathiness:0.2,nasality:0.4,fricative:0.0,drive:2.9},
+  {cat:"Extreme",name:"Robot Voice",desc:"Near-monotone with pressed, regular glottal pulse",tags:["voiced","extreme"],voiced:1,pitch:100,vowel:0.2,jaw:0.8,tongue:1.0,lips:0.9,breathiness:0.0,nasality:0.0,fricative:0.0,drive:1.9},
+  {cat:"Extreme",name:"Alien Whistle",desc:"Extreme tongue + near-closed lips · whistle-like",tags:["voiced","extreme"],voiced:1,pitch:500,vowel:0.5,jaw:0.3,tongue:2.0,lips:0.07,breathiness:0.0,nasality:0.0,fricative:0.3,drive:0.8},
+  {cat:"Extreme",name:"White Noise Burst",desc:"Pure unvoiced noise · no glottal source",tags:["unvoiced","extreme"],voiced:0,pitch:200,vowel:0.5,jaw:0.5,tongue:1.0,lips:0.5,breathiness:0.5,nasality:0.0,fricative:1.0,drive:1.0},
+  {cat:"Extreme",name:"Full Body Resonance",desc:"Maximum openness across all articulators",tags:["voiced","extreme"],voiced:1,pitch:88,vowel:0.0,jaw:2.0,tongue:0.1,lips:2.0,breathiness:0.06,nasality:0.0,fricative:0.0,drive:1.0},
+  {cat:"Character",name:"Old Man",desc:"Low pitch, breathy, reduced jaw mobility",tags:["voiced","character"],voiced:1,pitch:85,vowel:0.05,jaw:0.7,tongue:0.8,lips:0.8,breathiness:0.4,nasality:0.2,fricative:0.0,drive:1.5},
+  {cat:"Character",name:"Cartoon High",desc:"High pitch, exaggerated open vowel shape",tags:["voiced","character"],voiced:1,pitch:420,vowel:0.1,jaw:1.8,tongue:1.2,lips:1.5,breathiness:0.12,nasality:0.1,fricative:0.0,drive:0.7},
+  {cat:"Character",name:"Stage Villain",desc:"Low pitch, pressed, slightly nasal menace",tags:["voiced","character"],voiced:1,pitch:78,vowel:0.2,jaw:1.0,tongue:0.9,lips:0.7,breathiness:0.05,nasality:0.3,fricative:0.05,drive:2.1},
+  {cat:"Character",name:"Sorcerer Whisper",desc:"Breathy low voice · intimate and dark",tags:["voiced","character"],voiced:1,pitch:92,vowel:0.05,jaw:0.9,tongue:0.9,lips:0.9,breathiness:0.75,nasality:0.15,fricative:0.1,drive:0.9},
+  {cat:"Character",name:"Operatic Diva",desc:"Wide vibrato-ready formant shape · soprano",tags:["voiced","character"],voiced:1,pitch:392,vowel:0.0,jaw:2.0,tongue:0.6,lips:1.6,breathiness:0.04,nasality:0.0,fricative:0.0,drive:1.15},
+  {cat:"Character",name:"Auctioneer",desc:"Rapid mid-range · neutral and declarative",tags:["voiced","character"],voiced:1,pitch:170,vowel:0.18,jaw:1.0,tongue:1.0,lips:1.0,breathiness:0.06,nasality:0.05,fricative:0.0,drive:1.3},
+  {cat:"Character",name:"Monk Chant",desc:"Low drone, nasality, deep pharynx",tags:["voiced","character"],voiced:1,pitch:68,vowel:0.0,jaw:1.2,tongue:0.7,lips:1.0,breathiness:0.08,nasality:0.6,fricative:0.0,drive:1.1},
+];
+
+const VOWEL_AREAS = {
+  ah:[1.8,1.6,1.4,0.9,0.7,0.8,1.2,1.0],
+  eh:[1.2,1.1,1.0,0.6,0.5,0.9,1.3,1.1],
+  ee:[1.0,0.9,0.8,0.5,0.3,1.1,1.5,1.2],
+  oh:[1.4,1.3,1.2,1.1,0.9,0.7,0.8,0.4],
+  oo:[1.2,1.0,0.9,1.0,0.4,0.6,0.7,0.2],
+};
+
+const VOWEL_NAMES = {0:'ah',0.25:'eh',0.5:'ee',0.75:'oh',1.0:'oo'};
+const SEG_COLORS = ['#5080c2','#5080c2','#5080c2','#3a8a8a','#c8a96e','#c8a96e','#c25050','#c25050'];
+
+let state = {...PRESETS[0]};
+
+function lerp(a,b,t){return a+t*(b-a);}
+
+function getVowelArea(seg, v){
+  const t4 = v*4, lo = Math.min(Math.floor(t4),3), t = t4-lo;
+  const vs = ['ah','eh','ee','oh','oo'];
+  return lerp(VOWEL_AREAS[vs[lo]][seg], VOWEL_AREAS[vs[lo+1]][seg], t);
+}
+
+function computeAreas(st){
+  let a = [];
+  for(let s=0;s<8;s++) a[s] = getVowelArea(s, st.vowel);
+  a[0]*=st.jaw; a[1]*=st.jaw; a[4]*=st.tongue; a[7]*=st.lips;
+  return a;
+}
+
+function estimateFormants(areas){
+  let k=[];
+  for(let j=0;j<7;j++){
+    const d=areas[j]+areas[j+1];
+    k[j]=d>0.0001?(areas[j+1]-areas[j])/d:0;
+  }
+  const F1 = 300 + (1.0 - state.vowel)*300 + k[3]*200;
+  const F2 = 900 + state.vowel*1200 - k[4]*400;
+  const F3 = 2500 + k[5]*300;
+  const F4 = 3300 + k[6]*200;
+  return [Math.round(F1), Math.round(F2), Math.round(F3), Math.round(F4)];
+}
+
+function updateTractViz(areas){
+  const canvas = document.getElementById('tract-canvas');
+  if(!canvas) return;
+  canvas.innerHTML='';
+  const maxA = Math.max(...areas,0.1);
+  areas.forEach((a,i)=>{
+    const h = Math.round((a/maxA)*50)+2;
+    const d = document.createElement('div');
+    d.className='tract-seg';
+    d.style.height=h+'px';
+    d.style.background=SEG_COLORS[i]+'99';
+    d.style.border='1px solid '+SEG_COLORS[i];
+    canvas.appendChild(d);
+  });
+}
+
+function updateWaveform(st){
+  const svg = document.getElementById('wave-svg');
+  if(!svg) return;
+  const W=300,H=54,cy=H/2;
+  let pts=[];
+  const tp=0.65, N=120;
+  for(let i=0;i<N;i++){
+    const ph=i/N;
+    let g;
+    if(ph<tp){
+      const x=ph/tp;
+      g=x*x*(3-2*x)*2-1;
+      g+=((Math.random()-0.5)*st.breathiness*0.4);
+    } else {
+      const t=(ph-tp)/(1-tp);
+      const eps=st.drive*6;
+      g=-Math.exp(-eps*t);
+      if(st.drive>1.5) g=Math.tanh(g*st.drive);
+    }
+    g*=st.voiced;
+    const x=Math.round((i/N)*W);
+    const y=Math.round(cy-g*18);
+    pts.push(`${i===0?'M':'L'}${x},${y}`);
+  }
+  svg.innerHTML=`<path d="${pts.join(' ')}" stroke="var(--accent)" stroke-width="1.5" fill="none" opacity="0.9"/>
+<line x1="0" y1="${cy}" x2="${W}" y2="${cy}" stroke="var(--border2)" stroke-width="0.5"/>`;
+}
+
+function updateFormantDisplay(areas){
+  const fs=estimateFormants(areas);
+  const maxF=fs[3]*1.1;
+  const colors=['#5080c2','#3a8a8a','#c8a96e','#c25050'];
+  const labels=['F1','F2','F3','F4'];
+  const d=document.getElementById('formants-display');
+  if(!d) return;
+  d.innerHTML=fs.map((f,i)=>`
+  <div class="formant-row">
+    <span class="formant-key">${labels[i]}</span>
+    <div class="formant-bar" style="background:${colors[i]};width:${Math.round((f/maxF)*70)}px;"></div>
+    <span class="formant-hz">${f} Hz</span>
+  </div>`).join('');
+}
+
+function updateVowelButtons(v){
+  const targets=[0,0.25,0.5,0.75,1.0];
+  targets.forEach((t,i)=>{
+    const btn=document.getElementById('vowel-btn-'+i);
+    if(!btn) return;
+    const active=Math.abs(v-t)<0.05;
+    btn.style.background=active?'var(--surface2)':'transparent';
+    btn.style.borderColor=active?'var(--accent)':'var(--border2)';
+  });
+}
+
+function vowelLabel(v){
+  const keys=Object.keys(VOWEL_NAMES).map(Number).sort((a,b)=>a-b);
+  let closest=keys[0], minD=999;
+  keys.forEach(k=>{const d=Math.abs(v-k);if(d<minD){minD=d;closest=k;}});
+  if(minD<0.08) return VOWEL_NAMES[closest];
+  const pct=Math.round(v*100);
+  return pct+'%';
+}
+
+function updateUI(){
+  const params=['pitch','vowel','jaw','tongue','lips','breathiness','nasality','fricative','drive'];
+  params.forEach(p=>{
+    const r=document.getElementById('r-'+p);
+    const vv=document.getElementById('v-'+p);
+    if(!r||!vv) return;
+    r.value=state[p];
+    const mn=parseFloat(r.min),mx=parseFloat(r.max);
+    const pct=((state[p]-mn)/(mx-mn)*100).toFixed(1);
+    r.style.setProperty('--pct',pct+'%');
+    if(p==='pitch') vv.textContent=Math.round(state[p])+' Hz';
+    else if(p==='vowel') vv.textContent=vowelLabel(state[p]);
+    else vv.textContent=state[p].toFixed(2);
+  });
+  const bv=document.getElementById('btn-voiced');
+  const bu=document.getElementById('btn-unvoiced');
+  const isV=state.voiced>0.5;
+  if(bv){bv.className='toggle-btn'+(isV?' on':'');}
+  if(bu){bu.className='toggle-btn'+((!isV)?' on':'');}
+  updateVowelButtons(state.vowel);
+  const areas=computeAreas(state);
+  updateTractViz(areas);
+  updateWaveform(state);
+  updateFormantDisplay(areas);
+}
+
+function updateSlider(param, el){
+  const v=parseFloat(el.value);
+  state[param]=v;
+  const mn=parseFloat(el.min),mx=parseFloat(el.max);
+  const pct=((v-mn)/(mx-mn)*100).toFixed(1);
+  el.style.setProperty('--pct',pct+'%');
+  const vv=document.getElementById('v-'+param);
+  if(vv){
+    if(param==='pitch') vv.textContent=Math.round(v)+' Hz';
+    else if(param==='vowel') vv.textContent=vowelLabel(v);
+    else vv.textContent=v.toFixed(2);
+  }
+  if(param==='vowel') updateVowelButtons(v);
+  const areas=computeAreas(state);
+  updateTractViz(areas);
+  updateWaveform(state);
+  updateFormantDisplay(areas);
+}
+
+function setVoiced(v){
+  state.voiced=v;
+  const bv=document.getElementById('btn-voiced');
+  const bu=document.getElementById('btn-unvoiced');
+  if(bv){bv.className='toggle-btn'+(v>0.5?' on':'');}
+  if(bu){bu.className='toggle-btn'+(v<=0.5?' on':'');}
+  updateWaveform(state);
+}
+
+function setVowelQuick(v){
+  state.vowel=v;
+  const r=document.getElementById('r-vowel');
+  const vv=document.getElementById('v-vowel');
+  if(r){r.value=v;r.style.setProperty('--pct',((v/1)*100).toFixed(1)+'%');}
+  if(vv) vv.textContent=vowelLabel(v);
+  updateVowelButtons(v);
+  const areas=computeAreas(state);
+  updateTractViz(areas);
+  updateFormantDisplay(areas);
+}
+
+let activePreset=0;
+function loadPreset(idx){
+  activePreset=idx;
+  const p=PRESETS[idx];
+  state={...p};
+  document.getElementById('pt').textContent=p.name;
+  document.getElementById('pd').textContent=p.desc;
+  const tr=document.getElementById('tags-row');
+  if(tr) tr.innerHTML=p.tags.map(t=>`<span class="tag" style="color:var(--accent);border-color:var(--accent)99;font-size:9px;padding:2px 8px;border-radius:2px;text-transform:uppercase;letter-spacing:0.08em;">${t}</span>`).join('');
+  document.querySelectorAll('.preset-item').forEach((el,i)=>{
+    el.className='preset-item'+(i===idx?' active':'');
+  });
+  updateUI();
+}
+
+function buildPresetList(filter=''){
+  const list=document.getElementById('preset-list');
+  list.innerHTML='';
+  const cats=[...new Set(PRESETS.map(p=>p.cat))];
+  let globalIdx=0;
+  cats.forEach(cat=>{
+    const catPresets=PRESETS.map((p,i)=>({...p,gi:i})).filter(p=>p.cat===cat);
+    const shown=catPresets.filter(p=>!filter||p.name.toLowerCase().includes(filter)||p.desc.toLowerCase().includes(filter)||p.tags.some(t=>t.includes(filter)));
+    if(!shown.length){globalIdx+=catPresets.length;return;}
+    const lbl=document.createElement('div');
+    lbl.className='category-label';
+    lbl.textContent=cat;
+    list.appendChild(lbl);
+    shown.forEach(p=>{
+      const el=document.createElement('div');
+      el.className='preset-item'+(p.gi===activePreset?' active':'');
+      const isV=p.voiced>0.5&&p.fricative<0.3;
+      const isU=p.voiced<0.3;
+      const bClass=isU?'badge-u':isV?'badge-v':'badge-m';
+      const bLabel=isU?'noise':isV?'voiced':'mix';
+      el.innerHTML=`<span class="preset-name">${p.name}</span><span class="preset-badge ${bClass}">${bLabel}</span>`;
+      el.onclick=()=>loadPreset(p.gi);
+      list.appendChild(el);
+    });
+    globalIdx+=catPresets.length;
+  });
+}
+
+document.getElementById('search').addEventListener('input',e=>buildPresetList(e.target.value.toLowerCase().trim()));
+
+buildPresetList();
+loadPreset(0);
+</script>
