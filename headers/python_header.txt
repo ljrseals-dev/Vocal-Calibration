@@ -1,0 +1,19 @@
+# =============================================================================
+# <filename> — Vocal Calibration Layer (VCL) / MVCP
+# =============================================================================
+#
+# Project:    MouthModel / Vocal Calibration Layer
+# Author:     Lewis James Seals Jr  <ljrseals-dev>
+# Agent:      Anthropic / Claude  (assisted agent)
+# License:    MIT
+# Created:    2026
+#
+# Copyright (c) 2026 Lewis James Seals Jr (ljrseals-dev)
+#
+# Assisted by Anthropic's Claude. The human author (ljrseals-dev) is the
+# sole copyright holder and takes responsibility for the final content,
+# correctness, and fitness for purpose of this file. Claude's contribution
+# is provided as an agent assistant and does not itself claim authorship.
+#
+# If you fork or redistribute, keep this header and the NOTICE file.
+# =============================================================================

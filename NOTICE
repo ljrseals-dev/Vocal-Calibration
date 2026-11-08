@@ -1,0 +1,39 @@
+Multi-Modal Vocal Calibration Pipeline (MVCP) / Vocal Calibration Layer (VCL)
+==============================================================================
+
+Author
+------
+Lewis James Seals Jr
+GitHub: ljrseals-dev
+
+Agent assistance
+----------------
+Anthropic / Claude (assisted agent)
+
+Copyright
+---------
+Copyright (c) 2026 Lewis James Seals Jr (ljrseals-dev).
+All rights reserved unless a LICENSE file in this repository states otherwise.
+
+Attribution requirement
+-----------------------
+If you redistribute this software or a derivative work, you must preserve:
+  - this NOTICE file,
+  - the header block at the top of each source file,
+  - the author and agent lines above.
+
+No warranty
+-----------
+This software is provided "as is", without warranty of any kind, express or
+implied, including but not limited to the warranties of merchantability,
+fitness for a particular purpose, and noninfringement. In no event shall the
+author be liable for any claim, damages, or other liability arising from,
+out of, or in connection with the software or its use.
+
+Voice data / consent
+--------------------
+The VCL is a timbre-shaping layer and does not itself clone a voice. Any
+identity model built on top of it (so-vits-svc, RVC, or similar) must be
+trained only on consented, licensed reference audio. Training on an
+individual's voice without permission is outside the intended use of this
+project and is the sole responsibility of the user.

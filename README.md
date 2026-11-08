@@ -1,18 +1,77 @@
-# The-Mouth-Bottom-Instrument
-Perfect — a mouth/vocal tract physical model. That's a rich space: lips, teeth, tongue position, jaw, throat resonance, breath pressure. The surprise topology for this is a **Kelly-Lochbaum vocal tract waveguide** — a chain of acoustic tube segments with reflection coefficients at each junction, which is literally how the vocal tract works physically. Pair it with a glottal pulse source (Liljencrants-Fant model) for voiced sounds and a turbulent noise source for fricatives, and you get the full phoneme space.The surprise topology is a **Kelly-Lochbaum vocal tract waveguide** — the same physical model that underpins commercial vocoders, singing synthesizers, and speech research tools since the 1960s. Here's the architecture:
+# Multi-Modal Vocal Calibration Pipeline (MVCP) / Vocal Calibration Layer (VCL)
 
-**The tract as a tube chain**
+**Author:** Lewis James Seals Jr (ljrseals-dev)  
+**Agent assistance:** Anthropic / Claude  
+**Copyright © 2026 Lewis James Seals Jr (ljrseals-dev)**
 
-Eight cylindrical segments from glottis to lips, each with a forward and backward travelling wave. At every junction between segments, the area ratio determines how much energy reflects vs. transmits — exactly how a real throat works. Vowel formants (F1–F4) emerge naturally as standing-wave patterns without any explicit filter tuning.
+Offline, post-processing DSP layer that shapes a neutral singing or rap signal using a coordinated, gender-partitioned, mode-specific chain of transforms:
 
-**Two sources, one tract**
+- Envelope-gated aspiration / noise-floor calibration driven by a stored harmonics-to-noise deficit (ΔHNR)
+- Vowel-class-selective formant warping (low/back vowels only)
+- Mode switch: drive-dependent F3–F5 clustering (SING) vs. onset-locked formant-preserving transient tilt (RAP)
+- Strict phase-locked recombination of the original F0 contour and onset timing
 
-The LF glottal pulse models the asymmetric buzzy shape of real vocal folds — slow open phase, abrupt closure. `drive` steepens the closure exponential, which at high values produces vocal fry character. Turbulent noise can be injected at the glottis (for breathiness) or at segment 5 (the alveolar constriction, for /s/ and /f/ fricatives).
+## Repository contents
 
-**Five vowel targets, continuously morphed**
+| Path | Purpose |
+|------|---------|
+| `src/vcl.py` | Core VCL / MVCP reference implementation + CLI + presets |
+| `voice_changer/` | **Voice-changer / SVC integration layer** (adapter + docs) |
+| `docs/MVCP_Provisional_Patent_Draft.docx` | Provisional patent application draft |
+| `docs/architecture/pipeline.md` | Full system architecture diagram & notes |
+| `headers/` | Drop-in attribution headers for source files |
+| `tests/` | Smoke tests |
 
-/ah/ → /eh/ → /ee/ → /oh/ → /oo/ across the `vowel` knob. The area profiles are linguistically grounded — each profile reflects the actual cross-sectional geometry of the tract for that phoneme. `jaw`, `tongue`, and `lips` then act as articulatory offsets on top of the vowel target, so you can shape the timbre independently of the vowel identity.
+The VCL is intentionally a **DSP post-processing layer**, not a full synthesizer or identity-cloning system. It is designed to sit **after** a neutral SVS (e.g. DiffSinger) or a voice-changer / SVC stage (so-vits-svc, RVC, ElevenX, etc.).
 
-**Where to take it next**
+## Quick start — VCL only
 
-The natural extensions are a formant transition envelope (for consonant-vowel transitions), a proper side-branch nasal resonator (replacing the shelf approximation), and polyphonic glottal sources for choir/ensemble use.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m src.vcl --demo
+python -m src.vcl --preset gospel_belt --in dry_vocal.wav --out calibrated.wav
+```
+
+## Quick start — Voice Changer → VCL
+
+1. Run any offline voice changer / SVC model and write a WAV.
+2. Pass that WAV through the adapter:
+
+```bash
+python -m voice_changer.adapter --in converted.wav --out calibrated.wav --preset gospel_belt
+```
+
+Or from Python:
+
+```python
+from voice_changer.adapter import VoiceChangerConfig, process_with_vcl, process_file
+
+cfg = VoiceChangerConfig(vcl_preset="soul_tenor")
+process_file("svc_output.wav", "final.wav", config=cfg)
+```
+
+See `voice_changer/README.md` and `docs/architecture/pipeline.md` for the full recommended stack (DiffSinger / so-vits-svc / RVC / ElevenX → VCL).
+
+## Available VCL presets
+
+- `neutral` — all biases near zero  
+- `soul_tenor` — male, singing, moderate ring + light rasp  
+- `gospel_belt` — male, singing, stronger nonlinear ring  
+- `rap_flow` — male, rap mode, onset-locked transient emphasis  
+- `female_soul` — female partition, singing  
+
+All parameters remain fully editable; presets are only starting points.
+
+## Patent status
+
+A provisional patent application draft is included under `docs/`. File with the USPTO to secure a priority date. Claims are drafted around the concrete signal-processing architecture to satisfy current §101 guidance.
+
+## License
+
+MIT — see `LICENSE` and `NOTICE`. The human author is the sole copyright holder.
+
+## Consent notice
+
+Any identity model (SVC / RVC / so-vits-svc / XTTS) used in front of this layer must be trained only on consented, licensed reference audio. Unauthorized voice cloning is outside the intended use of this project and is the sole responsibility of the user.

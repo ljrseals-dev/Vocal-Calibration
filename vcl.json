@@ -1,0 +1,17 @@
+{
+  "name": "mvcp-vcl",
+  "version": "0.1.0",
+  "description": "Multi-Modal Vocal Calibration Pipeline / Vocal Calibration Layer — post-processing timbre calibration for singing and rap",
+  "author": {
+    "name": "Lewis James Seals Jr",
+    "handle": "ljrseals-dev",
+    "github": "https://github.com/ljrseals-dev"
+  },
+  "agent": {
+    "vendor": "Anthropic",
+    "product": "Claude",
+    "role": "assisted agent"
+  },
+  "copyright": "Copyright (c) 2026 Lewis James Seals Jr (ljrseals-dev)",
+  "license": "MIT"
+}
